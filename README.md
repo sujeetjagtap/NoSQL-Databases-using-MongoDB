@@ -1,8 +1,8 @@
-# NoSQL & MongoDB Textbook - Lab Scripts
+# NoSQL Databases using MongoDB Textbook - Lab Scripts
 
 Complete Python, Shell, and infrastructure scripts for all 36 hands-on labs
 (2 per chapter x 18 chapters) plus the Appendix A capstone, from the
-textbook *"NoSQL Databases Using MongoDB: An AIML Perspective"*.
+textbook *"NoSQL Databases Using MongoDB: A Practical Guide to NoSQL Concepts, Data Modeling, and Real-world Applications with MongoDB"*.
 
 ---
 
