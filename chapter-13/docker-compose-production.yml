@@ -1,0 +1,59 @@
+version: "3.8"
+services:
+  mongo-rs0-1:
+    image: mongo:7
+    container_name: prod-mongo-1
+    command:
+      - "--replSet"
+      - "rs0"
+      - "--bind_ip_all"
+      - "--auth"
+      - "--keyFile"
+      - "/etc/mongodb/keyfile"
+    ports:
+      - "27017:27017"
+    volumes:
+      - prod_data1:/data/db
+      - ./keyfile:/etc/mongodb/keyfile:ro
+    healthcheck:
+      test: echo 'db.runCommand({ping:1})' | mongosh --quiet -u admin -p AdminPass123! --authenticationDatabase admin
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-rs0-2:
+    image: mongo:7
+    container_name: prod-mongo-2
+    command:
+      - "--replSet"
+      - "rs0"
+      - "--bind_ip_all"
+      - "--auth"
+      - "--keyFile"
+      - "/etc/mongodb/keyfile"
+    ports:
+      - "27018:27017"
+    volumes:
+      - prod_data2:/data/db
+      - ./keyfile:/etc/mongodb/keyfile:ro
+
+  mongo-rs0-3:
+    image: mongo:7
+    container_name: prod-mongo-3
+    command:
+      - "--replSet"
+      - "rs0"
+      - "--bind_ip_all"
+      - "--auth"
+      - "--keyFile"
+      - "/etc/mongodb/keyfile"
+    ports:
+      - "27019:27017"
+    volumes:
+      - prod_data3:/data/db
+      - ./keyfile:/etc/mongodb/keyfile:ro
+
+volumes:
+  prod_data1:
+  prod_data2:
+  prod_data3:

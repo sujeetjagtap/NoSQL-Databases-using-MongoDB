@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo:7
+    container_name: chat-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - chat_data:/data/db
+
+  backend:
+    build:
+      context: ..
+      dockerfile: appendix-a/Dockerfile
+    container_name: chat-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017
+      - MONGO_DB=llm_chat_app
+      - LLM_BACKEND=ollama
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    depends_on:
+      - mongo
+
+  frontend:
+    image: streamlit/streamlit:latest
+    container_name: chat-frontend
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./streamlit_app.py:/app/streamlit_app.py
+    command: streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
+    depends_on:
+      - backend
+
+volumes:
+  chat_data:

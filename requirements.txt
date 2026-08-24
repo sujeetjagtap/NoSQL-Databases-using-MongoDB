@@ -1,0 +1,30 @@
+# NoSQL & MongoDB Textbook - Lab Dependencies
+# Install: pip install -r requirements.txt
+
+# Core MongoDB driver (the [in-memory] extra pulls in mongomock support,
+# used by some labs for offline/no-server dry runs)
+pymongo[in-memory]>=4.6.0
+
+# Web framework (Ch 15, Appendix A)
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.6.0
+
+# AI/ML (Ch 17, Appendix A)
+openai>=1.12.0
+voyageai>=0.2.0
+numpy>=1.26.0
+
+# Streamlit frontend (Appendix A)
+streamlit>=1.32.0
+
+# Cassandra driver (Ch 16)
+cassandra-driver>=3.29.0
+
+# Neo4j driver (Ch 16)
+neo4j>=5.17.0
+
+# Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0
+rich>=13.7.0

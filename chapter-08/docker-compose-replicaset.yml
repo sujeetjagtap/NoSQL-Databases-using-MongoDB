@@ -1,0 +1,38 @@
+version: "3.8"
+services:
+  mongo-rs0-1:
+    image: mongo:7
+    container_name: mongo-rs0-1
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - rs0_data1:/data/db
+    healthcheck:
+      test: echo 'db.runCommand({ping:1})' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-rs0-2:
+    image: mongo:7
+    container_name: mongo-rs0-2
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    ports:
+      - "27018:27018"
+    volumes:
+      - rs0_data2:/data/db
+
+  mongo-rs0-3:
+    image: mongo:7
+    container_name: mongo-rs0-3
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+    ports:
+      - "27019:27019"
+    volumes:
+      - rs0_data3:/data/db
+
+volumes:
+  rs0_data1:
+  rs0_data2:
+  rs0_data3:
