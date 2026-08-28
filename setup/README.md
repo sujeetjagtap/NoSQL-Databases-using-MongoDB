@@ -158,7 +158,102 @@ For any tool above, `docker run <image>` is usually the fastest way to get it ru
 
 ---
 
-## Verifying Everything
+## Post-Installation Configuration
+
+Installing a tool and having it actually work for these labs are two different things -- several of the tools above need a configuration step after install, before the chapter that uses them will run cleanly. This section covers every one of those steps.
+
+### `.env` -- the one every chapter reads
+
+Every lab script loads configuration through `config/connection.py`, which calls `load_dotenv()` -- so a `.env` file in the repo root is read automatically the moment you run any script from that directory. Create yours from the template:
+
+```bash
+cp .env.example .env
+```
+
+`MONGO_URI` is the only variable most chapters care about, and it already defaults to `mongodb://localhost:27017` even if you never set it -- so for Chapters 1-11, an empty `.env` (or none at all) is fine as long as MongoDB is actually running on the default port. Everything else in `.env.example` is chapter-specific and commented as such: Neo4j settings only matter for Chapter 16/18's optional graph backend, and the LLM/embedding settings only matter for Chapter 17 and Appendix A. Fill in a section only when you reach the chapter that needs it.
+
+One thing worth knowing about `load_dotenv()`'s default search behavior: it looks in your **current working directory** first. Run lab scripts from the repo root (`python chapter-04/lab_01_...py`, not `cd chapter-04 && python lab_01_...py`) so it actually finds the `.env` file at the root rather than failing to find one and silently falling back to defaults.
+
+### Docker
+
+**Linux only -- avoid needing `sudo` for every command:**
+```bash
+sudo usermod -aG docker $USER
+```
+Then **log out and back in** (group membership doesn't apply to your current session automatically). Verify with `docker run hello-world` -- if that works without `sudo`, you're set.
+
+**Mac/Windows (Docker Desktop):** the daemon only runs while the Docker Desktop application itself is open. If `docker run` fails with something like "Cannot connect to the Docker daemon," the fix is almost always "open Docker Desktop and wait for it to say it's running," not a configuration problem.
+
+**Linux specifically, for Appendix A with a local Ollama backend:** `host.docker.internal` (used by `appendix-a/docker-compose.yml` so the backend container can reach an Ollama instance running on your host machine) resolves automatically on Docker Desktop (Mac/Windows) but **not** on native Linux Docker Engine by default. The compose file in this repo already includes the fix (`extra_hosts: - "host.docker.internal:host-gateway"`), which requires Docker 20.10+ -- if you're on an older Docker version on Linux, either upgrade or point `OLLAMA_BASE_URL` at your host's actual LAN IP instead.
+
+### MongoDB (native installs)
+
+After a native install, confirm the service is actually running and listening before assuming anything is broken:
+
+```bash
+# Linux (systemd)
+sudo systemctl status mongod
+
+# macOS (Homebrew services)
+brew services list | grep mongodb
+
+# Windows
+sc query MongoDB
+```
+
+By default, `mongod` only binds to `127.0.0.1` (localhost) -- correct and expected for every lab in this repo, since they all connect to `localhost:27017`. You do not need to change `bindIp` in `mongod.conf` unless you specifically want to connect from a different machine on your network, which none of these labs require. None of the chapters before Chapter 12 configure authentication either -- Chapter 12 sets up its own users and RBAC as part of its own lab, so don't pre-configure auth on a fresh install or you'll lock yourself out of the earlier chapters' no-auth assumption.
+
+### Terraform + MongoDB Atlas provider
+
+Chapter 13's `main.tf` needs Atlas API credentials before `terraform plan` will authenticate at all. Generate a programmatic API key pair from the Atlas UI (Organization Settings &rarr; Access Manager &rarr; API Keys), then set:
+
+```bash
+export MONGODB_ATLAS_PUBLIC_KEY="your-public-key"
+export MONGODB_ATLAS_PRIVATE_KEY="your-private-key"
+```
+
+These are recognized by provider versions in the `~> 1.x` line, which is what `main.tf` targets. If you deliberately upgrade to a `2.x+` provider version, check `terraform providers` output against the current docs -- the 2.x provider line has been renaming some credential env vars (`MONGODB_ATLAS_PUBLIC_API_KEY` / `MONGODB_ATLAS_PRIVATE_API_KEY` in some 2.x releases), so don't assume the same variable names carry forward if you bump the version constraint yourself.
+
+You'll also need to provide the two variables `main.tf` declares but doesn't default (via a `terraform.tfvars` file, `-var` flags, or environment variables prefixed `TF_VAR_`):
+
+```bash
+export TF_VAR_atlas_org_id="your-atlas-org-id"      # from the Atlas UI's Organization settings
+export TF_VAR_atlas_user_password="a-strong-password"
+```
+
+### kubectl
+
+`kubectl` alone doesn't know what cluster to talk to -- it needs a context. If you don't already have a cluster, the two easiest local options:
+
+```bash
+# minikube
+minikube start
+kubectl config use-context minikube
+
+# kind
+kind create cluster
+kubectl config use-context kind-kind
+```
+
+Confirm the right context is active with `kubectl config current-context` before running Chapter 13's `lab_02_k8s_statefulset.py` -- it will still generate manifests either way, but it will only attempt to `kubectl apply` them if a cluster is actually reachable.
+
+### Neo4j
+
+On first login (Neo4j Desktop, or `docker run neo4j:5`), Neo4j forces a password change from the `neo4j`/`neo4j` default before it'll accept any other connection -- log in once via `http://localhost:7474` (the browser UI) or `cypher-shell` and set a real password, then put that same password in `.env` as `NEO4J_PASSWORD`. Chapter 16's `lab_02_hybrid_query_service.py` will silently fall back to its in-memory graph if it can't authenticate, so if you expect it to be using real Neo4j and it isn't, this is the first thing to check.
+
+### Ollama
+
+Installing Ollama gets you the *runtime*, not a model -- you still need to pull one before Chapter 17 or Appendix A can generate anything:
+
+```bash
+ollama pull llama3
+```
+
+(`llama3` matches this repo's `OLLAMA_MODEL` default in `.env.example`; pull a different model and update that variable if you'd rather use something else.) Confirm Ollama is actually listening with `curl http://localhost:11434` -- an empty-but-successful response means it's up; a connection error means you need to start it (`ollama serve`, or just open the Ollama application on Mac/Windows).
+
+---
+
+
 
 Once MongoDB is running (natively, via Docker, or via Atlas) and you've installed whatever Chapter 2 onward needs:
 
