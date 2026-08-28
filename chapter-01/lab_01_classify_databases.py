@@ -1,4 +1,7 @@
-"""Lab 1.1 - Classify Database ProductsNoSQL family identification and classification exercise."""
+"""Lab 1.1 - Classify Database Products
+
+NoSQL family identification and classification exercise.
+"""
 
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

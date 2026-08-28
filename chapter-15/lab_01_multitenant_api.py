@@ -1,4 +1,7 @@
-"""Lab 15.1 - Design a Multi-Tenant APITask management SaaS with tenant isolation, CRUD, and rate limiting."""
+"""Lab 15.1 - Design a Multi-Tenant API
+
+Task management SaaS with tenant isolation, CRUD, and rate limiting.
+"""
 
 import sys, os, time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

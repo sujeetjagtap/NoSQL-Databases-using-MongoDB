@@ -30,7 +30,7 @@ PRODUCTS = [
 ]
 
 
-ndef main():
+def main():
     banner("Lab 5.2: $lookup Joins")
     db = get_db("nosql_labs")
     orders_col = reset_collection("nosql_labs", "orders_join")

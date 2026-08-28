@@ -1,4 +1,7 @@
-"""Lab 5.1 - Build a Sales Analytics PipelineMulti-stage aggregation for revenue, top customers, order categorization."""
+"""Lab 5.1 - Build a Sales Analytics Pipeline
+
+Multi-stage aggregation for revenue, top customers, order categorization.
+"""
 
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

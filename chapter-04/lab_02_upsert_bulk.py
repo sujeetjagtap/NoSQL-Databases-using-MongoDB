@@ -1,4 +1,6 @@
-"""Lab 4.2 - Implement Upsert and Bulk OperationsConditional inserts + batch modifications.
+"""Lab 4.2 - Implement Upsert and Bulk Operations
+
+Conditional inserts + batch modifications.
 """
 
 import sys, os
@@ -50,7 +52,6 @@ def main():
         UpdateOne({"sku": "WGT-001"}, {"$inc": {"stock": -10}}),              # Sold 10 units
         UpdateOne({"sku": "WGT-002"}, {"$mul": {"price": 0.9}}),                # 10% discount
         UpdateOne({"sku": "WGT-003"}, {"$set": {"active": True}}),               # Activate
-        UpdateOne({"sku": "WGT-004"}, {"$set": {"name": "EarBuds Pro"}},       # New product
         UpdateOne({"sku": "WGT-004"}, {"$set": {"name": "EarBuds Ultra", "price": 79.99, "stock": 150}}, upsert=True),  # Upsert
     ]
     bulk_result = col.bulk_write(operations)
@@ -64,12 +65,21 @@ def main():
     for doc in col.find({}, {"_id": 0}).sort("sku"):
         print(f"  {doc.get('sku', 'N/A'):10} {doc.get('name', 'N/A'):<20} ${doc.get('price', 0):.2f}  stock={doc.get('stock', 'N/A')}")
 
-    # --- IDEMPOTENT IMPORT DEMO ---
-    print("\n=== Idempotent Import: re-running same bulk write ===")
+    # --- IDEMPOTENCY DEMO: re-running the same bulk write ---
+    print("\n=== Re-running the same bulk write (NOT all operations are idempotent) ===")
     bulk_result2 = col.bulk_write(operations)
     print(f"  Matched:      {bulk_result2.matched_count}")
     print(f"  Modified:     {bulk_result2.modified_count}")
-    print(f"  (Same data re-applied; $set and $inc are idempotent for same values)")
+    doc_004 = col.find_one({"sku": "WGT-001"}, {"_id": 0})
+    print(f"  WGT-001 stock after 2nd run: {doc_004.get('stock')} "
+          f"(dropped by another 10 -- $inc is NOT idempotent)")
+    print("  $set operations (WGT-003's 'active' flag) ARE idempotent: setting")
+    print("  the same value twice leaves the document unchanged either way.")
+    print("  $inc and $mul are NOT idempotent: re-running the same bulk write")
+    print("  changes the stock/price again each time it runs. This distinction")
+    print("  matters for retry logic -- a network timeout that actually succeeded")
+    print("  server-side, followed by a client retry, can silently double-apply")
+    print("  a non-idempotent update.")
 
     banner("Lab 4.2 Complete")
 

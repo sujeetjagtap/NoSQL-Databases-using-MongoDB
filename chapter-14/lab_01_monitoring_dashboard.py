@@ -1,4 +1,7 @@
-"""Lab 14.1 - Build a Monitoring DashboardRetrieve metrics, format as table, log to file, threshold alerts."""
+"""Lab 14.1 - Build a Monitoring Dashboard
+
+Retrieve metrics, format as table, log to file, threshold alerts.
+"""
 
 import sys, os, time, json, logging
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

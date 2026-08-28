@@ -6,8 +6,16 @@ Run: streamlit run streamlit_app.py --server.port 8501
 
 import streamlit as st
 import requests
+import os
 
-BACKEND_URL = st.secrets.get("BACKEND_URL", "http://localhost:8000")
+# NOTE: st.secrets.get(...) was used here previously, but st.secrets raises
+# StreamlitSecretNotFoundError the moment it's accessed if no secrets.toml
+# file exists -- which is the default for anyone who just clones this repo
+# and runs `streamlit run streamlit_app.py` (or `docker compose up`) without
+# first creating one. That crashed the app before it could render anything.
+# os.getenv() has no such requirement and works identically locally, in
+# Docker Compose (via `environment:`), and in most cloud deployments.
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 
 st.title("NoSQL MongoDB - LLM Chat Application")

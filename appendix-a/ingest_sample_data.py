@@ -1,4 +1,7 @@
-"""Appendix A - Ingest Sample Documents into the Chat AppRun this to populate the RAG database with textbook content for testing."""
+"""Appendix A - Ingest Sample Documents into the Chat App
+
+Run this to populate the RAG database with textbook content for testing.
+"""
 
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

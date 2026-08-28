@@ -1,4 +1,7 @@
-"""Lab 7.1 - Analyze a Production SchemaEmbed vs reference analysis with $bsonSize."""
+"""Lab 7.1 - Analyze a Production Schema
+
+Embed vs reference analysis with $bsonSize.
+"""
 
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -41,7 +44,7 @@ BLOG_POSTS = [
 ]
 
 
-ndef main():
+def main():
     banner("Lab 7.1: Analyze a Production Schema")
     db = get_db("nosql_labs")
     col = reset_collection("nosql_labs", "blog_posts")

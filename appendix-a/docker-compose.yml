@@ -28,6 +28,8 @@ services:
     container_name: chat-frontend
     ports:
       - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8000
     volumes:
       - ./streamlit_app.py:/app/streamlit_app.py
     command: streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
